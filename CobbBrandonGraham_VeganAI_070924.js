@@ -3,6 +3,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const userInput = document.getElementById('userInput');
     const responseDiv = document.getElementById('responseDiv');
     const loadingMessage = document.getElementById('loadingMessage');
+    const darkModeToggle = document.getElementById('darkModeToggle');
+
+    darkModeToggle.addEventListener('change', function() {
+        document.body.classList.toggle('dark-mode', this.checked);
+    });
 
     // Check if the elements are being accessed correctly
     console.log(sendBtn, userInput, responseDiv, loadingMessage); // Debug log
@@ -61,14 +66,22 @@ document.addEventListener('DOMContentLoaded', function() {
         responseDiv.scrollTop = responseDiv.scrollHeight; // Auto-scroll to the bottom
     }
 
-    function addAIMessage(message) {
-        console.log('Adding AI message to responseDiv:', message); // Debug log
-        const botBubble = document.createElement('div');
-        botBubble.className = 'response-bubble bot-bubble';
-        botBubble.textContent = message;
-        responseDiv.appendChild(botBubble);
-        responseDiv.scrollTop = responseDiv.scrollHeight; // Auto-scroll to the bottom
-    }
+function addAIMessage(message) {
+   console.log('Adding AI message to responseDiv:', message);
+
+   const botBubble = document.createElement('div');
+   botBubble.className = 'response-bubble bot-bubble';
+
+   // Convert Markdown to HTML
+   const htmlContent = marked.parse(message);
+
+   // Sanitize the HTML
+   botBubble.innerHTML = DOMPurify.sanitize(htmlContent);
+
+   // Append the message to the chat
+   responseDiv.appendChild(botBubble);
+   responseDiv.scrollTop = responseDiv.scrollHeight; // Auto-scroll to the bottom
+}
 
     function showLoadingMessage() {
         console.log('Showing loading message'); // Debug log
@@ -80,3 +93,14 @@ document.addEventListener('DOMContentLoaded', function() {
         loadingMessage.style.display = 'none';
     }
 });
+
+// Saving user preference
+darkModeToggle.checked = localStorage.getItem('darkMode') === 'true';
+document.body.classList.toggle('dark-mode', darkModeToggle.checked);
+
+// Event listener
+darkModeToggle.addEventListener('change', function() {
+    document.body.classList.toggle('dark-mode', this.checked);
+    localStorage.setItem('darkMode', this.checked);
+});
+
